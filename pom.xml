@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>jmeter.autoTest</groupId>
+	<artifactId>auto-jmeter-new</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<description>Check that report generation works</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- env.引用jenkins变量使用，生成jmeter脚本报告 -->
+		<!-- ${env.WORKSPACE}/Report/${env.BUILD_ID}/jtl ${env.WORKSPACE}/Report/${env.BUILD_ID}/details 
+			${env.WORKSPACE}/Report/${env.BUILD_ID}/summary -->
+		<jmeter.result.jtl.dir>${env.WORKSPACE}/jmeter/${env.BUILD_ID}/results</jmeter.result.jtl.dir>
+		<jmeter.result.details.dir>${env.WORKSPACE}/jmeter/${env.BUILD_ID}/details</jmeter.result.details.dir>
+		<jmeter.result.summary.dir>${env.WORKSPACE}/jmeter/${env.BUILD_ID}/summary</jmeter.result.summary.dir>
+		<ReportName>接口自动化测试</ReportName>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.17</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.13</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.testng/testng -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.9.10</version>
+		</dependency>
+
+
+		<!--此处 添加自己引入的jar包 -->
+
+	</dependencies>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>Codehaus repository</id>
+			<url>http://repository.codehaus.org/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!-- 核心插件，用来执行jmx脚本，注意版本号，2.1.0可以使用用jmeter3.1生成的脚本。最新的2.2.0使用jmeter3.2生成的脚本 -->
+				<groupId>com.lazerycode.jmeter</groupId>
+				<artifactId>jmeter-maven-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+
+					<!--报告文件尾部输出时间 -->
+
+					<!-- 默认报告优化，修改jmeter.properties配置 -->
+					<propertiesJMeter>
+						<log_level.jmeter>DEBUG</log_level.jmeter>
+					</propertiesJMeter>
+					<resultsFileFormat>xml</resultsFileFormat>
+					<ignoreResultFailures>true</ignoreResultFailures>
+					<testResultsTimestamp>false</testResultsTimestamp>
+					<!-- 如果不想查看jmeter生成的log,设置为true -->
+					<suppressJMeterOutput>true</suppressJMeterOutput>
+					<!-- 增加扩展插件 -->
+					<jmeterExtensions>
+						<!--此处自己引入的jar包 -->
+					</jmeterExtensions>
+
+					<!-- 增加jar包,需要先将jar注册到本地maven仓库，打开cmd使用如下命令 -->
+					<!--mvn install:install-file -Dfile=D:\michael\auto\demo\plugns\jmeter-plugins-json.jar
+						-DgroupId=com.jmeter.michael -DartifactId=jmeter-plugins-json -Dversion=2.6
+						-Dpackaging=jar -->
+					<!-- <jmeterExtensions> -->
+					<!-- jmeter扩展插件 json path assert -->
+					<!-- <artifact>com.atlantbh.jmeter:jmeter-plugins-json:2.7</artifact> -->
+					<!-- 本地自己写的jar -->
+					<!-- <artifact>com.smrz:smrz-utils:1.0</artifact> -->
+					<!-- </jmeterExtensions> -->
+
+					<!-- 设置jmeter生成结果文件格式 -->
+					<resultsFileFormat>xml</resultsFileFormat>
+					<!-- 设置忽略失败是否停止运行 -->
+					<ignoreResultFailures>true</ignoreResultFailures>
+					<!--设置结果是否有时间戳,与appendResultsTimestamp 或resultsFileNameDateFormat 搭配使用 -->
+					<testResultsTimestamp>false</testResultsTimestamp>
+					<testFilesIncluded>
+						<!-- 使用<jMeterTestFiles>选择执行用例 -->
+						 <jMeterTestFile>temp/*.jmx</jMeterTestFile>
+						<!-- 标签排除用例 -->
+						<!--<excludeJMeterTestFile>*.jmx</excludeJMeterTestFile>-->
+					</testFilesIncluded>
+					<resultsDirectory>${jmeter.result.jtl.dir}</resultsDirectory>
+					<!-- 使用<testFilesDirectory>指定测试用例的路径 -->
+					<!-- <testFilesDirectory>/scratch/testfiles/</testFilesDirectory> -->
+				</configuration>
+
+				<executions>
+					<execution>
+						<id>jmeter-tests</id>
+						<phase>verify</phase>
+						<!--脚本所在的文件夹 -->
+						<goals>
+							<goal>jmeter</goal>
+						</goals>
+						<configuration>
+							<appendResultsTimestamp>true</appendResultsTimestamp>
+							<skipTests>${skipTests}</skipTests>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<compilerArguments>
+						<extdirs>${project.build.directory}/jmeter/lib</extdirs>
+					</compilerArguments>
+				</configuration>
+			</plugin>
+
+			<!-- 解决报告展开收缩的图标问题 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${jmeter.result.summary.dir}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/test/resources/png</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<!--根据xsl模版把jtl文件转换成html，官网地址： http://www.mojohaus.org/xml-maven-plugin/examples/transform-saxon.html -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>xml-maven-plugin</artifactId>
+				<version>1.0-beta-3</version>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<transformationSets>
+
+						<!-- 可以根据不同的模版，同时生成多个报告 -->
+
+						<transformationSet>
+							<dir>${jmeter.result.jtl.dir}</dir>
+							<stylesheet>src\test\resources\jmeter-results-detail-report_30.xsl</stylesheet>
+							<outputDir>${jmeter.result.summary.dir}</outputDir>
+							<fileMappers>
+								<fileMapper
+									implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>html</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+
+
+						<transformationSet>
+							<dir>${jmeter.result.jtl.dir}</dir>
+							<stylesheet>src\test\resources\jmeter.results.shanhe.me.xsl</stylesheet>
+							<outputDir>${jmeter.result.details.dir}</outputDir>
+							<!-- 把jtl格式转传承html -->
+							<fileMappers>
+								<fileMapper
+									implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+									<targetExtension>html</targetExtension>
+								</fileMapper>
+							</fileMappers>
+						</transformationSet>
+					</transformationSets>
+				</configuration>
+				<!-- using XSLT 2.0 解决时间为NAN -->
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.saxon</groupId>
+						<artifactId>saxon</artifactId>
+						<version>8.7</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/jmeter/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+				<configuration>
+					<!-- 指定打包的jar包输出路径 -->
+					<outputDirectory>
+						${project.build.directory}/jmeter/lib/ext
+					</outputDirectory>
+					<!--不打入jar包的文件类型或者路径 -->
+					<excludes>
+					</excludes>
+
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>theMainClass</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+		</plugins>
+		<defaultGoal>clean</defaultGoal>
+
+	</build>
+</project>

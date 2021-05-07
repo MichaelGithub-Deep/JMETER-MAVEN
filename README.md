@@ -6,17 +6,8 @@
 
 ### 1.1. 项目归档说明
 
-项目目前在src/jmeter/下有finance/inventory/order/purchase几个工作目录
+项目目前在src/jmeter/下有temp工作目录
 
-- finance/    财务产品线的项目
-
-- inventory/    仓储产品线的项目
-
-- order/    订单产品线的项目
-
-- purchase/    采购产品线的项目
-
-可以根据自己的项目讲脚本归档在对应的目录中
 
 **注意：脚本中有依赖的数据文件跟jmx文件在相同路径下即可（jmx脚本中使用相对路径指定==之前已经在开发规范中明确）**
 
@@ -66,7 +57,7 @@ git push origin master:master
 					<testResultsTimestamp>false</testResultsTimestamp>
 					<testFilesIncluded>
 						<!-- 使用<jMeterTestFiles>选择执行用例 -->
-						 <jMeterTestFile>product/*.jmx</jMeterTestFile>
+						 <jMeterTestFile>temp/*.jmx</jMeterTestFile>
 						<!-- 标签排除用例 -->
 						<!--<excludeJMeterTestFile>*.jmx</excludeJMeterTestFile>-->
 					</testFilesIncluded>
@@ -117,12 +108,8 @@ mvn clean verify
 ```xml
 					<testFilesIncluded>
 						<!-- 使用<jMeterTestFiles>选择执行用例 -->
-						 <jMeterTestFile>product/*.jmx</jMeterTestFile>
+						 <jMeterTestFile>temp/*.jmx</jMeterTestFile>
 						<!-- 标签排除用例 -->
 						<!--<excludeJMeterTestFile>*.jmx</excludeJMeterTestFile>-->
 					</testFilesIncluded>
 ```
-
-### 3.4. 更多jmeter开发规范可以参考文档
-
-[Jmeter接口自动化开发规范 - gongkongsaas - Confluence](https://confluence.gongkongsaas.com/pages/viewpage.action?pageId=81386154) 

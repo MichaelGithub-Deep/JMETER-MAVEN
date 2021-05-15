@@ -15,7 +15,7 @@
 
 ```bash
 # clone当前项目到本地
-git clone https://gitlab.gongkongsaas.com/yanghai/auto-jmeter-new.git 
+git clone https://yourproject.com/mihcael/auto-jmeter-new.git 
 # 查看本地的修改状态
 git status
 # 本地提交代码
